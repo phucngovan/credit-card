@@ -1,6 +1,8 @@
 import {Component, OnInit} from '@angular/core';
 import * as $ from 'jquery';
 import {split} from 'ts-node';
+import {FormBuilder, FormGroup, Validators} from '@angular/forms';
+import {CardServiceService} from './card-service.service';
 
 @Component({
   selector: 'app-root',
@@ -9,32 +11,48 @@ import {split} from 'ts-node';
 })
 export class AppComponent implements OnInit {
   title = 'credit-card';
+  copyVal;
   month: Array<string> = ['01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12'];
   year = [];
-  cardName: number | string | Array<number>;
-  cardNumber: any;
+  cardName: any;
+  cardNumber = '';
+  copyValueInput = '';
   m = 'MM';
-  num1;
-  num2;
-  num3;
-  num4;
+  cardNumberInitial = '####\xa0\xa0\xa0\xa0\xa0####\xa0\xa0\xa0\xa0\xa0####\xa0\xa0\xa0\xa0\xa0####';
+  cardNumberInitial1;
+  num1 ;
+  num2 ;
+  num3 ;
+  num4 ;
   yCard: string | number | string[] = 'YY';
   y: string | number | string[];
   cvv: any;
+  addForm: FormGroup;
+  submitted = false;
+  keyID;
+  get f() {
+    return this.addForm.controls;
+  }
+
+  constructor(private formBuilder: FormBuilder, private cardService: CardServiceService) {
+  }
+
+  initializeCardNumber(value) {
+    const arr = [];
+    for (const i of value) {
+      arr.push(i);
+    }
+    return arr;
+  }
 
   pushYear() {
     for (let i = 1995; i < 2020; i++) {
       this.year.push(i);
     }
   }
+
   transformCard() {
     $('.flip-card-inner').addClass('transform-cart-rotateY');
-  }
-  convertYear() {
-    this.y = $('#exampleFormControlSelect2').val();
-    console.log(this.y.toString().slice(2), '23232323');
-    this.y = this.y.toString().slice(2);
-    return this.y;
   }
   showBorderNumber() {
     $('.flip-card-inner').removeClass('transform-cart-rotateY');
@@ -43,6 +61,7 @@ export class AppComponent implements OnInit {
     $('.card-holder').addClass('hideBorder');
     $('.expires').addClass('hideBorder');
   }
+
   showBorderName() {
     $('.flip-card-inner').removeClass('transform-cart-rotateY');
     $('.card-holder').addClass('showBorder');
@@ -50,6 +69,7 @@ export class AppComponent implements OnInit {
     $('.card-number').addClass('hideBorder');
     $('.expires').addClass('hideBorder');
   }
+
   showBorderExpires() {
     $('.flip-card-inner').removeClass('transform-cart-rotateY');
     $('.card-holder').addClass('hideBorder');
@@ -58,31 +78,56 @@ export class AppComponent implements OnInit {
     $('.expires').addClass('showBorder');
   }
 
+  replaceWordToEmpty(event) {
+    event.target.value = event.target.value.replace(/[^\d]/, '');
+  }
+  getFormValues() {
+    // this.addForm.valueChanges.subscribe(val => {
+    //   console.log(val);
+    // });
+    this.addForm.get('cardNumber').valueChanges.subscribe(val => {
+      console.log(typeof val, 'type val');
+      val = val.split('');
+      this.num1 = val.splice(0, 4);
+      this.num2 = val.splice(0, 4);
+      if (this.num2.length >= 1) {
+        this.num2.unshift('\xa0\xa0\xa0\xa0\xa0');
+      }
+      this.num3 = val.splice(0, 4);
+      if (this.num3.length >= 1) {
+        this.num3.unshift('\xa0\xa0\xa0\xa0\xa0');
+      }
+      this.num4 = val.splice(0, 4);
+      if (this.num4.length >= 1) {
+        this.num4.unshift('\xa0\xa0\xa0\xa0\xa0');
+      }
+      val = [...this.num1, ...this.num2, ...this.num3, ...this.num4].join('');
+      this.copyValueInput = val;
+      console.log(val, 'val after', val.length);
+      this.cardNumberInitial1[val.length - 1] = val.substr(val.length - 1);
+      console.log(this.copyValueInput.length, 'copyValueInput');
+    });
+  }
+  KeyCheck(event) {
+    this.keyID = event.keyCode;
+    console.log(this.keyID, 'key');
+    if (this.keyID === 8) {
+      // tslint:disable-next-line:prefer-for-of
+      console.log(this.copyValueInput.length, 'test');
+      if (this.copyValueInput.length === 4 || this.copyValueInput.length === 13 || this.copyValueInput.length === 22) {
+        this.cardNumberInitial1[this.copyValueInput.length + 5] = '#';
+      } else { this.cardNumberInitial1[this.copyValueInput.length] = '#'; }
+    }
+  }
+
   ngOnInit(): void {
-    console.log(this.cardNumber, 'init');
-    this.y = $('#exampleFormControlSelect2').val();
-    console.log(this.y, '23232323');
-    // this.y = (document.getElementById('exampleFormControlSelect2') as HTMLInputElement).value;
-    // tslint:disable-next-line:no-unused-expression
-    // @ts-ignore
-    $('#number').change(() => {
-      // this.cardNumber = this.cardNumber.split(' ');
-      // while (this.cardNumber.length) {
-      //   this.cardNumber = this.cardNumber.splice()
-      // }
-      this.cardNumber = $('#number').val().toString().split('');
-      this.num1 = this.cardNumber.splice(0, 4).join('');
-      this.num2 = this.cardNumber.splice(0, 4).join('');
-      this.num3 = this.cardNumber.splice(0, 4).join('');
-      this.num4 = this.cardNumber.splice(0, 4).join('');
-      this.cardNumber.push(this.num1);
-      this.cardNumber.push(this.num2);
-      this.cardNumber.push(this.num3);
-      this.cardNumber.push(this.num4);
-      // console.log(this.num1, this.num2, this.num3, '999999');
-      console.log(this.cardNumber.join('$nbsp'), '0======0');
-      this.cardNumber = this.cardNumber.join('------')
-      return this.cardNumber;
+    this.cardNumberInitial1 = this.initializeCardNumber(this.cardNumberInitial);
+    this.addForm = this.formBuilder.group({
+      cardNumber: ['', Validators.required],
+      name: ['', Validators.required],
+      cvv: ['', Validators.required],
+      month: ['', Validators.required],
+      year: ['', Validators.required]
     });
     $('#exampleFormControlSelect2').click(() => {
       this.yCard = $('#exampleFormControlSelect2').val();
@@ -93,5 +138,18 @@ export class AppComponent implements OnInit {
       return this.yCard;
     });
     this.pushYear();
+    this.getFormValues();
+  }
+
+  onSubmit() {
+    this.submitted = true;
+
+    // stop here if form is invalid
+    if (this.addForm.invalid) {
+      return;
+    }
+    this.cardService.addCard(this.addForm.value).subscribe(data => {
+      alert('tao thanh cong');
+    });
   }
 }

@@ -8,7 +8,7 @@
         </div>
         <div class="row">
           <div class="card-number col-md-12">
-            {{cardNumber}}
+            <span *ngFor="let num of cardNumberInitial1; let i = index">{{cardNumberInitial1[i]}}</span>
           </div>
           <div class="card-holder col-md-8">
             <span>Card holder</span><br>
@@ -33,44 +33,59 @@
       </div>
     </div>
   </div>
-  <div class="frames">
-    <div class="form-group">
-      <label for="number">Card Number</label>
-      <input [(ngModel)]="cardNumber" type="text" maxlength="16" (click)="showBorderNumber()"
-             onkeyup="this.value=this.value.replace(/[^\d]/,'')"
-             class="form-control" id="number"
-             aria-describedby="emailHelp"
-             placeholder="Card Number">
-    </div>
-    <div class="form-group">
-      <label for="name">Card Name</label>
-      <input [(ngModel)]="cardName" (click)="showBorderName()" type="text" class="form-control"
-             id="name"
-             placeholder="Card Name">
-    </div>
-    <div class="row">
-      <div class="form-group col-md-4">
-        <label for="exampleFormControlSelect1">Expiration Date</label>
-        <select (click)="showBorderExpires()" [(ngModel)]="m" class="form-control" id="exampleFormControlSelect1">
-          <option value="" disabled selected>Month</option>
-          <option value="{{m}}" *ngFor="let m of month">{{m}}</option>
-        </select>
+  <form [formGroup]="addForm" (ngSubmit)="onSubmit()">
+    <div class="frames">
+      <div class="form-group">
+        <label for="number">Card Number</label>
+        <input [(ngModel)]="cardNumber" type="text" maxlength="16" (click)="showBorderNumber()"
+               (input)="replaceWordToEmpty($event)"
+               class="form-control" id="number"
+               formControlName="cardNumber"
+               name="cardNumber"
+               placeholder="Card Number"
+               (keyup.backspace)="KeyCheck($event)"
+               [ngClass]="{ 'is-invalid': submitted && f.cardNumber.errors}"
+        >
+        <div *ngIf="submitted && f.cardNumber.errors" class="invalid-feedback">
+          <div *ngIf="f.cardNumber.errors.required">Name is required</div>
+        </div>
       </div>
-      <div class="form-group col-md-4">
-        <label></label>
-        <select (click)="showBorderExpires()" [(ngModel)]="y" class="form-control" id="exampleFormControlSelect2">
-          <option value="" disabled selected>Year</option>
-          <option value="{{y}}" *ngFor="let y of year">{{y}}</option>
-        </select>
+      <div class="form-group">
+        <label for="name">Card Name</label>
+        <input [(ngModel)]="cardName" (click)="showBorderName()" type="text" class="form-control"
+               id="name"
+               name="name"
+               formControlName="name"
+               placeholder="Card Name"
+               [ngClass]="{ 'is-invalid': submitted && f.name.errors}">
+        <div *ngIf="submitted && f.name.errors" class="invalid-feedback">
+          <div *ngIf="f.name.errors.required">Name is required</div>
+        </div>
       </div>
-      <div (click)="transformCard()" class="form-group col-md-4">
-        <label for="cvv">CVV</label>
-        <input [(ngModel)]="cvv" onkeyup="this.value=this.value.replace(/[^\d]/,'')" maxlength="4" type="text"
-               class="form-control" id="cvv">
+      <div class="row">
+        <div class="form-group col-md-4">
+          <label>Expiration Date</label>
+          <select (click)="showBorderExpires()" [(ngModel)]="m" formControlName="month" class="form-control" id="exampleFormControlSelect1">
+            <option value="" disabled selected>Month</option>
+            <option value="{{m}}" *ngFor="let m of month">{{m}}</option>
+          </select>
+        </div>
+        <div class="form-group col-md-4">
+          <label></label>
+          <select (click)="showBorderExpires()" [(ngModel)]="y" formControlName="year" class="form-control" id="exampleFormControlSelect2">
+            <option value="" disabled selected>Year</option>
+            <option value="{{y}}" *ngFor="let y of year">{{y}}</option>
+          </select>
+        </div>
+        <div (click)="transformCard()" class="form-group col-md-4">
+          <label for="cvv">CVV</label>
+          <input [(ngModel)]="cvv" formControlName="cvv" name="cvv" onkeyup="this.value=this.value.replace(/[^\d]/,'')" maxlength="4" type="text"
+                 class="form-control" id="cvv">
+        </div>
       </div>
-    </div>
 
-    <button id="submit" type="submit" class="btn btn-primary col-md-12">Submit</button>
-  </div>
+      <button id="submit" type="submit" class="btn btn-primary col-md-12">Submit</button>
+    </div>
+  </form>
 </div>
 
