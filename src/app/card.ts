@@ -1,8 +1,8 @@
-export class Card {
+export interface Card {
   id: number;
   cardNumber: string;
   name: string;
-  cvv: number;
   month: string;
   year: number;
+  cvv: number;
 }

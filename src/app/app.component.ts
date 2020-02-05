@@ -1,6 +1,5 @@
 import {Component, OnInit} from '@angular/core';
 import * as $ from 'jquery';
-import {split} from 'ts-node';
 import {FormBuilder, FormGroup, Validators} from '@angular/forms';
 import {CardServiceService} from './card-service.service';
 
@@ -11,7 +10,6 @@ import {CardServiceService} from './card-service.service';
 })
 export class AppComponent implements OnInit {
   title = 'credit-card';
-  copyVal;
   month: Array<string> = ['01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12'];
   year = [];
   cardName: any;
@@ -49,6 +47,7 @@ export class AppComponent implements OnInit {
     for (let i = 1995; i < 2020; i++) {
       this.year.push(i);
     }
+    console.log(typeof this.year[0], 'year');
   }
 
   transformCard() {
@@ -125,9 +124,9 @@ export class AppComponent implements OnInit {
     this.addForm = this.formBuilder.group({
       cardNumber: ['', Validators.required],
       name: ['', Validators.required],
-      cvv: ['', Validators.required],
       month: ['', Validators.required],
-      year: ['', Validators.required]
+      year: ['', Validators.required],
+      cvv: ['', Validators.required]
     });
     $('#exampleFormControlSelect2').click(() => {
       this.yCard = $('#exampleFormControlSelect2').val();
@@ -143,12 +142,14 @@ export class AppComponent implements OnInit {
 
   onSubmit() {
     this.submitted = true;
-
     // stop here if form is invalid
     if (this.addForm.invalid) {
       return;
     }
     this.cardService.addCard(this.addForm.value).subscribe(data => {
+      this.cardNumberInitial1 = this.initializeCardNumber(this.cardNumberInitial);
+      this.yCard = 'YY';
+      this.m = 'MM';
       alert('tao thanh cong');
     });
   }

@@ -1,4 +1,4 @@
-<div class="container-box" xmlns:https="http://www.w3.org/1999/xhtml">
+<div class="container-box">
   <div class="card-visa">
     <div class="flip-card-inner" id="inner">
       <div class="card-before">
@@ -33,7 +33,7 @@
       </div>
     </div>
   </div>
-  <form [formGroup]="addForm" (ngSubmit)="onSubmit()">
+  <form [formGroup]="addForm" (ngSubmit)="onSubmit();addForm.reset()">
     <div class="frames">
       <div class="form-group">
         <label for="number">Card Number</label>
